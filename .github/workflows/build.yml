@@ -1,0 +1,42 @@
+name: Build release
+on:
+  push:
+
+jobs:
+  build:
+    name: Build release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run msbuild
+        shell: pwsh
+        run: |
+          cd Seatbelt
+          msbuild Seatbelt.csproj /property:Configuration=Release
+
+      - name: Upload to artifact storage
+        uses: actions/upload-artifact@v2
+        with:
+          path: Seatbelt/Seatbelt/bin/Release/Seatbelt.exe
+          if-no-files-found: error
+          # only meant for sharing with the publish job
+          retention-days: 1
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          path: Seatbelt.exe
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          title: "${{ env.GITHUB_SHA }}"
+          prerelease: true
+          files: |
+            Seatbelt.exe
+        id: "automatic_releases"
