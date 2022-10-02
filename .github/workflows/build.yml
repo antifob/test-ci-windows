@@ -18,7 +18,7 @@ jobs:
       - name: Run msbuild
         shell: pwsh
         run: |
-          cd Seatbelt
+          cd Seatbelt/Seatbelt
           msbuild Seatbelt.csproj /property:Configuration=Release
 
       - name: Upload to artifact storage
